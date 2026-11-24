@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consulta de Contas & Tenants Reshop</title>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --badge-bg: #eff6ff;
+      --badge-text: #1d4ed8;
+      --success: #16a34a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .upload-btn:hover { background: #f8fafc; }
+    .upload-btn input { display: none; }
+
+    .status {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .status.error { color: #dc2626; font-weight: 500; }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .tab-btn {
+      padding: 10px 18px;
+      border: none;
+      background: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .search-box {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card);
+      outline: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      margin-bottom: 14px;
+    }
+
+    .search-box:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .chip {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .chip.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .meta {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .table-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.92rem;
+    }
+
+    th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+    }
+
+    .copy-btn {
+      margin-left: 8px;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .copy-btn:hover { background: #f1f5f9; color: var(--text); }
+    .copy-btn.copied { border-color: var(--success); color: var(--success); }
+
+    .empty {
+      padding: 32px;
+      text-align: center;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Central de Buscas</h1>
+      <label class="upload-btn">
+        Carregar outra planilha (.xlsx)
+        <input type="file" id="fileInput" accept=".xlsx,.xls" />
+      </label>
+    </header>
+
+    <div id="status" class="status">Carregando dados de Fila WEB.xlsx...</div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="contas">Distribuição de Contas</button>
+      <button class="tab-btn" data-tab="tenants">Buscador de Tenants (Reshop)</button>
+    </div>
+
+    <!-- ABA 1: CONTAS / ANALISTAS -->
+    <section id="panel-contas" class="panel active">
+      <input
+        type="text"
+        id="searchContas"
+        class="search-box"
+        placeholder="Digite o início do nome do cliente ou analista (ex: Grupo, Vitor, TNG)..."
+        autocomplete="off"
+      />
+      <div id="analystChips" class="chips"></div>
+      <div id="metaContas" class="meta"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente / Conta</th>
+              <th>Analista Responsável</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyContas"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ABA 2: TENANTS -->
+    <section id="panel-tenants" class="panel">
+      <input
+        type="text"
+        id="searchTenants"
+        class="search-box"
+        placeholder="Digite o nome da conta, CNPJ (com ou sem pontuação) ou TenantID..."
+        autocomplete="off"
+      />
+      <div id="metaTenants" class="meta"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Ambiente</th>
+              <th>TenantID</th>
+              <th>Nome Tenant</th>
+              <th>CNPJ</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyTenants"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const EXCEL_FILE = './Fila WEB.xlsx';
+    const MAX_TENANT_ROWS = 100;
+
+    let contasData = [];
+    let tenantsData = [];
+    let selectedAnalyst = 'TODOS';
+
+    // Remove acentos e deixa minúsculo para busca flexível
+    function normalizeText(str) {
+      return String(str || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+    }
+
+    // Mantém apenas números (para busca por CNPJ)
+    function onlyDigits(str) {
+      return String(str || '').replace(/\D/g, '');
+    }
+
+    // Formata CNPJ de 14 dígitos para exibição
+    function formatCNPJ(raw) {
+      const digits = onlyDigits(raw);
+      if (digits.length === 14) {
+        return digits.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+      }
+      return raw || '-';
+    }
+
+    // Evita quebra de HTML em nomes com caracteres especiais (ex: Track&Field)
+    function escapeHTML(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function parseWorkbook(arrayBuffer, sourceLabel) {
+      const wb = XLSX.read(arrayBuffer, { type: 'array' });
+
+      // 1) Aba de Distribuição de Contas
+      const sheetContasName = wb.SheetNames.find(n => normalizeText(n).includes('distribuicao')) || wb.SheetNames[0];
+      const sheetContas = wb.Sheets[sheetContasName];
+      const rowsContas = XLSX.utils.sheet_to_json(sheetContas, { header: 1, defval: '' });
+
+      contasData = [];
+      if (rowsContas.length > 1) {
+        const analysts = rowsContas[0].map(a => String(a || '').trim());
+        for (let r = 1; r < rowsContas.length; r++) {
+          const row = rowsContas[r];
+          for (let c = 0; c < analysts.length; c++) {
+            const analista = analysts[c];
+            const cliente = String(row[c] || '').trim();
+            if (analista && cliente) {
+              contasData.push({
+                cliente,
+                analista,
+                clienteNorm: normalizeText(cliente),
+                analistaNorm: normalizeText(analista)
+              });
+            }
+          }
+        }
+      }
+
+      // 2) Aba de Tenants
+      const sheetTenantsName = wb.SheetNames.find(n => normalizeText(n).includes('tenant')) || wb.SheetNames[1];
+      tenantsData = [];
+      if (sheetTenantsName) {
+        const sheetTenants = wb.Sheets[sheetTenantsName];
+        const rowsTenants = XLSX.utils.sheet_to_json(sheetTenants, { raw: false, defval: '' });
+        tenantsData = rowsTenants.map(row => {
+          const ambiente = String(row['Ambiente'] || '').trim();
+          const tenantId = String(row['TenantID'] || '').trim();
+          const nome = String(row['Nome Tenant'] || '').trim();
+          const cnpjRaw = String(row['CNPJ'] || '').trim();
+          return {
+            ambiente,
+            tenantId,
+            nome,
+            cnpjRaw,
+            cnpjDigits: onlyDigits(cnpjRaw),
+            nomeNorm: normalizeText(nome)
+          };
+        });
+      }
+
+      document.getElementById('status').className = 'status';
+      document.getElementById('status').textContent =
+        `Base carregada (${sourceLabel}): ${contasData.length} contas e ${tenantsData.length} tenants.`;
+
+      renderAnalystChips();
+      renderContas();
+      renderTenants();
+    }
+
+    function renderAnalystChips() {
+      const container = document.getElementById('analystChips');
+      const counts = {};
+      contasData.forEach(item => {
+        counts[item.analista] = (counts[item.analista] || 0) + 1;
+      });
+
+      const analysts = Object.keys(counts);
+      let html = `<button class="chip ${selectedAnalyst === 'TODOS' ? 'active' : ''}" data-analyst="TODOS">Todos (${contasData.length})</button>`;
+      analysts.forEach(a => {
+        html += `<button class="chip ${selectedAnalyst === a ? 'active' : ''}" data-analyst="${escapeHTML(a)}">${escapeHTML(a)} (${counts[a]})</button>`;
+      });
+
+      container.innerHTML = html;
+      container.querySelectorAll('.chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedAnalyst = btn.dataset.analyst;
+          renderAnalystChips();
+          renderContas();
+        });
+      });
+    }
+
+    function renderContas() {
+      const term = normalizeText(document.getElementById('searchContas').value);
+      const filtered = contasData.filter(item => {
+        const matchAnalyst = selectedAnalyst === 'TODOS' || item.analista === selectedAnalyst;
+        const matchTerm = !term || item.clienteNorm.includes(term) || item.analistaNorm.includes(term);
+        return matchAnalyst && matchTerm;
+      });
+
+      document.getElementById('metaContas').textContent = `${filtered.length} resultado(s) encontrado(s)`;
+
+      const tbody = document.getElementById('tbodyContas');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="2" class="empty">Nenhuma conta ou analista encontrado.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => `
+        <tr>
+          <td><strong>${escapeHTML(item.cliente)}</strong></td>
+          <td><span class="badge">${escapeHTML(item.analista)}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderTenants() {
+      const rawQuery = document.getElementById('searchTenants').value;
+      const term = normalizeText(rawQuery);
+      const termDigits = onlyDigits(rawQuery);
+
+      const filtered = tenantsData.filter(item => {
+        if (!term) return true;
+        const matchName = item.nomeNorm.includes(term);
+        const matchId = item.tenantId.toLowerCase().includes(term);
+        const matchCnpj = termDigits.length > 0 && item.cnpjDigits.includes(termDigits);
+        return matchName || matchId || matchCnpj;
+      });
+
+      const showing = filtered.slice(0, MAX_TENANT_ROWS);
+      document.getElementById('metaTenants').textContent =
+        filtered.length > MAX_TENANT_ROWS
+          ? `Mostrando ${MAX_TENANT_ROWS} de ${filtered.length} resultados (digite mais caracteres para refinar)`
+          : `${filtered.length} resultado(s) encontrado(s)`;
+
+      const tbody = document.getElementById('tbodyTenants');
+      if (showing.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty">Nenhum tenant encontrado.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = showing.map(item => {
+        const cnpjFmt = formatCNPJ(item.cnpjRaw);
+        const copyCnpjBtn = item.cnpjDigits
+          ? `<button class="copy-btn" onclick="copyText(this, '${escapeHTML(item.cnpjDigits)}')">Copiar</button>`
+          : '';
+        return `
+          <tr>
+            <td>${escapeHTML(item.ambiente)}</td>
+            <td>
+              <strong>${escapeHTML(item.tenantId)}</strong>
+              <button class="copy-btn" onclick="copyText(this, '${escapeHTML(item.tenantId)}')">Copiar</button>
+            </td>
+            <td>${escapeHTML(item.nome)}</td>
+            <td>${escapeHTML(cnpjFmt)} ${copyCnpjBtn}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function copyText(btn, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copiado!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1200);
+      });
+    }
+
+    // Troca de abas
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Busca em tempo real
+    document.getElementById('searchContas').addEventListener('input', renderContas);
+    document.getElementById('searchTenants').addEventListener('input', renderTenants);
+
+    // Upload manual (fallback para uso local ou testes)
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => parseWorkbook(ev.target.result, file.name);
+      reader.readAsArrayBuffer(file);
+    });
+
+    // Carregamento automático do arquivo no GitHub Pages
+    async function loadDefaultExcel() {
+      try {
+        const response = await fetch(encodeURI(EXCEL_FILE) + '?v=' + Date.now());
+        if (!response.ok) throw new Error('Arquivo não encontrado');
+        const buffer = await response.arrayBuffer();
+        parseWorkbook(buffer, 'Fila WEB.xlsx');
+      } catch (err) {
+        const statusEl = document.getElementById('status');
+        statusEl.className = 'status error';
+        statusEl.textContent =
+          'Não foi possível carregar "Fila WEB.xlsx" automaticamente. Se estiver testando no PC, clique em "Carregar outra planilha (.xlsx)" acima.';
+      }
+    }
+
+    loadDefaultExcel();
+  </script>
+</body>
+</html>
