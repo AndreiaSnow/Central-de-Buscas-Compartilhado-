@@ -3,288 +3,371 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Consulta de Contas & Tenants Reshop</title>
+  <title>Central de Buscas — Contas & Tenants Reshop</title>
+
+  <!-- Fonte Inter (Google Fonts) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            },
+            surface: '#f4f6f9',
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Biblioteca SheetJS para leitura real de arquivos Excel (.xlsx / .xls) -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-  <style>
-    :root {
-      --bg: #f4f6f9;
-      --card: #ffffff;
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --text: #1e293b;
-      --muted: #64748b;
-      --border: #e2e8f0;
-      --badge-bg: #eff6ff;
-      --badge-text: #1d4ed8;
-      --success: #16a34a;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
-      padding: 24px 16px;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-    }
-
-    .upload-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-
-    .upload-btn:hover { background: #f8fafc; }
-    .upload-btn input { display: none; }
-
-    .status {
-      font-size: 0.875rem;
-      color: var(--muted);
-      margin-bottom: 16px;
-    }
-
-    .status.error { color: #dc2626; font-weight: 500; }
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid var(--border);
-    }
-
-    .tab-btn {
-      padding: 10px 18px;
-      border: none;
-      background: none;
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--muted);
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-      transition: color 0.15s, border-color 0.15s;
-    }
-
-    .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
-
-    .panel { display: none; }
-    .panel.active { display: block; }
-
-    .search-box {
-      width: 100%;
-      padding: 14px 16px;
-      font-size: 1rem;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: var(--card);
-      outline: none;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-      margin-bottom: 14px;
-    }
-
-    .search-box:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-    }
-
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .chip {
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      font-size: 0.85rem;
-      cursor: pointer;
-      color: var(--text);
-    }
-
-    .chip.active {
-      background: var(--primary);
-      color: #fff;
-      border-color: var(--primary);
-    }
-
-    .meta {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-
-    .table-wrap {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-
-    th, td {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.92rem;
-    }
-
-    th {
-      background: #f8fafc;
-      font-weight: 600;
-      color: var(--muted);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-    }
-
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #f8fafc; }
-
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      background: var(--badge-bg);
-      color: var(--badge-text);
-    }
-
-    .copy-btn {
-      margin-left: 8px;
-      padding: 3px 8px;
-      font-size: 0.75rem;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: #fff;
-      color: var(--muted);
-      cursor: pointer;
-    }
-
-    .copy-btn:hover { background: #f1f5f9; color: var(--text); }
-    .copy-btn.copied { border-color: var(--success); color: var(--success); }
-
-    .empty {
-      padding: 32px;
-      text-align: center;
-      color: var(--muted);
-    }
-  </style>
 </head>
-<body>
-  <div class="container">
-    <header>
-      <h1>Central de Buscas</h1>
-      <label class="upload-btn">
-        Carregar outra planilha (.xlsx)
-        <input type="file" id="fileInput" accept=".xlsx,.xls" />
-      </label>
-    </header>
+<body class="bg-surface text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
-    <div id="status" class="status">Carregando dados de Fila WEB.xlsx...</div>
+  <!-- Barra superior / Cabeçalho -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <!-- Identidade e Subtítulo dinâmico -->
+        <div class="flex items-start sm:items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+            <!-- Ícone de Busca Corporativa -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">Central de Buscas</h1>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700 border border-brand-100">
+                Contas &amp; Tenants Reshop
+              </span>
+            </div>
+            <p id="headerStats" class="text-xs sm:text-sm text-slate-500 mt-0.5">
+              Carregando base de dados...
+            </p>
+          </div>
+        </div>
 
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="contas">Distribuição de Contas</button>
-      <button class="tab-btn" data-tab="tenants">Buscador de Tenants (Reshop)</button>
+        <!-- Botão para carregar planilha real (.xlsx) -->
+        <div class="flex items-center gap-2">
+          <label
+            for="fileInput"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:scale-[0.99] text-white text-sm font-medium shadow-sm cursor-pointer transition w-full sm:w-auto"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            <span>Carregar Fila WEB.xlsx</span>
+            <input type="file" id="fileInput" accept=".xlsx,.xls" class="hidden" />
+          </label>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main class="max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1">
+
+    <!-- Banner de status / aviso de amostra demonstrativa ou erro -->
+    <div id="statusBanner" class="mb-5 rounded-xl border border-blue-200 bg-blue-50/80 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm text-blue-900">
+      <div class="flex items-start sm:items-center gap-2.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5 sm:mt-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span id="statusBannerText">
+          Exibindo <strong>amostra demonstrativa</strong>. Para consultar a base completa, clique em <strong>Carregar Fila WEB.xlsx</strong> no canto superior direito.
+        </span>
+      </div>
+      <span id="sourceBadge" class="inline-flex items-center self-start sm:self-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white text-brand-700 border border-blue-200 shrink-0">
+        Amostra
+      </span>
     </div>
 
-    <!-- ABA 1: CONTAS / ANALISTAS -->
-    <section id="panel-contas" class="panel active">
-      <input
-        type="text"
-        id="searchContas"
-        class="search-box"
-        placeholder="Digite o início do nome do cliente ou analista (ex: Grupo, Vitor, TNG)..."
-        autocomplete="off"
-      />
-      <div id="analystChips" class="chips"></div>
-      <div id="metaContas" class="meta"></div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Cliente / Conta</th>
-              <th>Analista Responsável</th>
-            </tr>
-          </thead>
-          <tbody id="tbodyContas"></tbody>
-        </table>
-      </div>
-    </section>
+    <!-- Navegação em Abas -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="border-b border-slate-200 bg-slate-50/60 px-3 sm:px-6 pt-3">
+        <nav class="flex gap-2 sm:gap-4 overflow-x-auto" aria-label="Abas de consulta">
+          <button
+            type="button"
+            data-tab="contas"
+            class="tab-btn group inline-flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 border-brand-600 text-brand-600 whitespace-nowrap transition rounded-t-lg"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Distribuição de Contas</span>
+            <span id="tabCountContas" class="px-2 py-0.5 text-xs rounded-full bg-brand-100 text-brand-700 font-semibold">0</span>
+          </button>
 
-    <!-- ABA 2: TENANTS -->
-    <section id="panel-tenants" class="panel">
-      <input
-        type="text"
-        id="searchTenants"
-        class="search-box"
-        placeholder="Digite o nome da conta, CNPJ (com ou sem pontuação) ou TenantID..."
-        autocomplete="off"
-      />
-      <div id="metaTenants" class="meta"></div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Ambiente</th>
-              <th>TenantID</th>
-              <th>Nome Tenant</th>
-              <th>CNPJ</th>
-            </tr>
-          </thead>
-          <tbody id="tbodyTenants"></tbody>
-        </table>
+          <button
+            type="button"
+            data-tab="tenants"
+            class="tab-btn group inline-flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300 whitespace-nowrap transition rounded-t-lg"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <span>Buscador de Tenants (Reshop)</span>
+            <span id="tabCountTenants" class="px-2 py-0.5 text-xs rounded-full bg-slate-200 text-slate-600 font-semibold">0</span>
+          </button>
+        </nav>
       </div>
-    </section>
+
+      <!-- ========================================================= -->
+      <!-- ABA 1: DISTRIBUIÇÃO DE CONTAS                             -->
+      <!-- ========================================================= -->
+      <section id="panel-contas" class="p-4 sm:p-6">
+        <!-- Campo de busca -->
+        <div class="relative mb-4">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            id="searchContas"
+            autocomplete="off"
+            placeholder="Digite as iniciais do cliente ou analista (ex: gru, vit, TNG, Reserva)..."
+            class="w-full pl-11 pr-11 py-3.5 text-sm sm:text-base bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-600 transition"
+          />
+          <button
+            type="button"
+            id="clearContas"
+            title="Limpar busca"
+            class="hidden absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Chips de filtro rápido por analista -->
+        <div class="mb-4">
+          <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">Filtrar por analista</div>
+          <div id="analystChips" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <!-- Contador de resultados -->
+        <div class="flex items-center justify-between mb-3">
+          <p id="metaContas" class="text-xs sm:text-sm text-slate-500 font-medium"></p>
+        </div>
+
+        <!-- Tabela de Contas -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th class="py-3.5 px-4 sm:px-5">Cliente / Conta</th>
+                  <th class="py-3.5 px-4 sm:px-5 w-48 sm:w-56">Analista Responsável</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyContas" class="divide-y divide-slate-100 text-sm"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- ABA 2: BUSCADOR DE TENANTS (RESHOP)                       -->
+      <!-- ========================================================= -->
+      <section id="panel-tenants" class="p-4 sm:p-6 hidden">
+        <!-- Campo de busca -->
+        <div class="relative mb-4">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            id="searchTenants"
+            autocomplete="off"
+            placeholder="Digite o nome da conta, CNPJ (com ou sem pontuação) ou TenantID (ex: 10.285.590, 94, soma)..."
+            class="w-full pl-11 pr-11 py-3.5 text-sm sm:text-base bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-600 transition"
+          />
+          <button
+            type="button"
+            id="clearTenants"
+            title="Limpar busca"
+            class="hidden absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Contador de resultados -->
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <p id="metaTenants" class="text-xs sm:text-sm text-slate-500 font-medium"></p>
+        </div>
+
+        <!-- Tabela de Tenants -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th class="py-3.5 px-4 sm:px-5 w-28">Ambiente</th>
+                  <th class="py-3.5 px-4 sm:px-5 w-44">TenantID</th>
+                  <th class="py-3.5 px-4 sm:px-5">Nome Tenant</th>
+                  <th class="py-3.5 px-4 sm:px-5 w-60">CNPJ</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyTenants" class="divide-y divide-slate-100 text-sm"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Rodapé discreto -->
+  <footer class="max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 text-center text-xs text-slate-400">
+    Central de Buscas • Compatível com GitHub Pages e leitura local de <span class="font-medium text-slate-500">Fila WEB.xlsx</span>
+  </footer>
+
+  <!-- Toast de feedback (cópia / carregamento) -->
+  <div
+    id="toast"
+    class="fixed bottom-5 right-5 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-200 bg-slate-900 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+    <span id="toastMessage">Ação concluída</span>
   </div>
 
   <script>
-    const EXCEL_FILE = './Fila WEB.xlsx';
+    /**
+     * =========================================================================
+     * CONFIGURAÇÕES E DADOS INICIAIS (AMOSTRA DEMONSTRATIVA)
+     * =========================================================================
+     */
+    const EXCEL_DEFAULT_PATH = './Fila WEB.xlsx';
     const MAX_TENANT_ROWS = 100;
 
+    // Amostra inicial de contas para visualização imediata
+    const SAMPLE_CONTAS = [
+      { cliente: 'Adriana Degreas', analista: 'Matheus' },
+      { cliente: 'Ateen Moda Feminina', analista: 'Matheus' },
+      { cliente: 'AUSTRAL CULTURE', analista: 'Matheus' },
+      { cliente: 'BALI HAI - RETAGUARDA PARANA', analista: 'Matheus' },
+      { cliente: 'Bayard', analista: 'Matheus' },
+      { cliente: 'Criari', analista: 'Matheus' },
+      { cliente: 'D MANO CONFECCOES', analista: 'Matheus' },
+      { cliente: 'DEUS EX MACHINA', analista: 'Matheus' },
+      { cliente: 'Bomache', analista: 'Paula' },
+      { cliente: 'CAVALERA', analista: 'Paula' },
+      { cliente: 'D MANO CONFECCOES - R', analista: 'Paula' },
+      { cliente: 'D.R. LING', analista: 'Paula' },
+      { cliente: 'ELOETH', analista: 'Paula' },
+      { cliente: 'FATIOTA', analista: 'Paula' },
+      { cliente: 'Fit web', analista: 'Paula' },
+      { cliente: 'FORUM', analista: 'Paula' },
+      { cliente: 'AESOP (NATURA)', analista: 'Camila' },
+      { cliente: 'ANDRIELLO', analista: 'Camila' },
+      { cliente: 'Any Any', analista: 'Camila' },
+      { cliente: 'Calzedonia', analista: 'Camila' },
+      { cliente: 'Citerol', analista: 'Camila' },
+      { cliente: 'Reserva', analista: 'Camila' },
+      { cliente: 'CORELLO', analista: 'Camila' },
+      { cliente: 'DRILL', analista: 'Camila' },
+      { cliente: 'TNG', analista: 'Thiago' },
+      { cliente: 'Agilita', analista: 'Thiago' },
+      { cliente: 'Anjuss', analista: 'Thiago' },
+      { cliente: 'Aramis', analista: 'Thiago' },
+      { cliente: 'ARTY MODAS', analista: 'Thiago' },
+      { cliente: 'Blueman', analista: 'Thiago' },
+      { cliente: 'BROCKTON', analista: 'Thiago' },
+      { cliente: 'Dorinhos', analista: 'Thiago' },
+      { cliente: 'BUCKMAN', analista: 'Vitor' },
+      { cliente: 'COTTON ON', analista: 'Vitor' },
+      { cliente: 'DEBRUM', analista: 'Vitor' },
+      { cliente: 'Grupo Soma', analista: 'Vitor' },
+      { cliente: 'HAIGHT', analista: 'Vitor' },
+      { cliente: 'Inovathi', analista: 'Vitor' },
+      { cliente: 'Kyly', analista: 'Vitor' },
+      { cliente: 'LAFORT', analista: 'Vitor' }
+    ];
+
+    // Amostra inicial de tenants Reshop para visualização imediata
+    const SAMPLE_TENANTS = [
+      { Ambiente: 'Moda', TenantID: '1', 'Nome Tenant': 'Linx Reshop', CNPJ: '54517628003022' },
+      { Ambiente: 'Moda', TenantID: '6', 'Nome Tenant': 'Consumidor', CNPJ: '-' },
+      { Ambiente: 'Moda', TenantID: '8', 'Nome Tenant': 'TNG', CNPJ: '53966834003308' },
+      { Ambiente: 'Moda', TenantID: '10', 'Nome Tenant': 'Reshop Test', CNPJ: '15573499000101' },
+      { Ambiente: 'Moda', TenantID: '16', 'Nome Tenant': 'Shoulder', CNPJ: '43470566000190' },
+      { Ambiente: 'Moda', TenantID: '17', 'Nome Tenant': 'Reserva', CNPJ: '07308705000110' },
+      { Ambiente: 'Moda', TenantID: '21', 'Nome Tenant': 'Buckman', CNPJ: '22347998000138' },
+      { Ambiente: 'Moda', TenantID: '25', 'Nome Tenant': 'TVZ', CNPJ: '04665096000168' },
+      { Ambiente: 'Moda', TenantID: '27', 'Nome Tenant': 'Track&Field', CNPJ: '13772537000111' },
+      { Ambiente: 'Moda', TenantID: '36', 'Nome Tenant': 'Loungerie', CNPJ: '13513325001000' },
+      { Ambiente: 'Moda', TenantID: '51', 'Nome Tenant': 'Cotton On', CNPJ: '15425654000134' },
+      { Ambiente: 'Moda', TenantID: '85', 'Nome Tenant': 'Lacoste', CNPJ: '62438197000100' },
+      { Ambiente: 'Moda', TenantID: '94', 'Nome Tenant': 'Grupo Soma', CNPJ: '10285590000108' },
+      { Ambiente: 'Moda', TenantID: '95', 'Nome Tenant': 'Osklen', CNPJ: '35943604000156' },
+      { Ambiente: 'Moda', TenantID: '97', 'Nome Tenant': 'Scarfme', CNPJ: '97519914000103' },
+      { Ambiente: 'Moda', TenantID: '185', 'Nome Tenant': 'Admin Grupo Soma', CNPJ: '10285590000108' },
+      { Ambiente: 'Moda', TenantID: '195', 'Nome Tenant': 'Grupo Calzedonia', CNPJ: '13566271000150' },
+      { Ambiente: 'Moda', TenantID: '196', 'Nome Tenant': 'Calzedonia (Proprias)', CNPJ: '-' },
+      { Ambiente: 'Moda', TenantID: '197', 'Nome Tenant': 'Calzedonia (Franquias)', CNPJ: '-' },
+      { Ambiente: 'Moda', TenantID: '464', 'Nome Tenant': 'Grupo - Aramis', CNPJ: '14007062000130' },
+      { Ambiente: 'Moda', TenantID: '465', 'Nome Tenant': 'Aramis (Próprias)', CNPJ: '-' },
+      { Ambiente: 'Moda', TenantID: '466', 'Nome Tenant': 'Aramis (Franquias)', CNPJ: '-' },
+      { Ambiente: 'Moda', TenantID: '626', 'Nome Tenant': 'Cavalera (Company)', CNPJ: '00819123000156' },
+      { Ambiente: 'Moda', TenantID: '627', 'Nome Tenant': 'Cavalera (Brand)', CNPJ: '00819123000157' }
+    ];
+
+    // Paleta de cores distintas para badges de analistas
+    const ANALYST_STYLES = {
+      matheus: { badge: 'bg-blue-50 text-blue-700 border-blue-200', dot: 'bg-blue-500' },
+      paula:   { badge: 'bg-purple-50 text-purple-700 border-purple-200', dot: 'bg-purple-500' },
+      camila:  { badge: 'bg-rose-50 text-rose-700 border-rose-200', dot: 'bg-rose-500' },
+      thiago:  { badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
+      vitor:   { badge: 'bg-amber-50 text-amber-800 border-amber-200', dot: 'bg-amber-500' },
+    };
+
+    const FALLBACK_PALETTE = [
+      { badge: 'bg-cyan-50 text-cyan-700 border-cyan-200', dot: 'bg-cyan-500' },
+      { badge: 'bg-indigo-50 text-indigo-700 border-indigo-200', dot: 'bg-indigo-500' },
+      { badge: 'bg-teal-50 text-teal-700 border-teal-200', dot: 'bg-teal-500' },
+      { badge: 'bg-orange-50 text-orange-700 border-orange-200', dot: 'bg-orange-500' },
+      { badge: 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200', dot: 'bg-fuchsia-500' },
+    ];
+
+    // Estado global da aplicação
     let contasData = [];
     let tenantsData = [];
     let selectedAnalyst = 'TODOS';
+    let toastTimer = null;
 
-    // Remove acentos e deixa minúsculo para busca flexível
+    /**
+     * =========================================================================
+     * FUNÇÕES UTILITÁRIAS
+     * =========================================================================
+     */
+
+    // Remove acentos e converte para minúsculas para busca flexível
     function normalizeText(str) {
       return String(str || '')
         .normalize('NFD')
@@ -293,87 +376,215 @@
         .trim();
     }
 
-    // Mantém apenas números (para busca por CNPJ)
+    // Extrai apenas dígitos (ideal para CNPJ com ou sem pontuação)
     function onlyDigits(str) {
       return String(str || '').replace(/\D/g, '');
     }
 
-    // Formata CNPJ de 14 dígitos para exibição
+    // Formata CNPJ com 14 dígitos no padrão 00.000.000/0000-00
     function formatCNPJ(raw) {
       const digits = onlyDigits(raw);
       if (digits.length === 14) {
         return digits.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
       }
-      return raw || '-';
+      return raw && raw !== '-' ? raw : '—';
     }
 
-    // Evita quebra de HTML em nomes com caracteres especiais (ex: Track&Field)
+    // Protege contra caracteres especiais em HTML (ex: Track&Field)
     function escapeHTML(str) {
       return String(str || '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
-    function parseWorkbook(arrayBuffer, sourceLabel) {
-      const wb = XLSX.read(arrayBuffer, { type: 'array' });
-
-      // 1) Aba de Distribuição de Contas
-      const sheetContasName = wb.SheetNames.find(n => normalizeText(n).includes('distribuicao')) || wb.SheetNames[0];
-      const sheetContas = wb.Sheets[sheetContasName];
-      const rowsContas = XLSX.utils.sheet_to_json(sheetContas, { header: 1, defval: '' });
-
-      contasData = [];
-      if (rowsContas.length > 1) {
-        const analysts = rowsContas[0].map(a => String(a || '').trim());
-        for (let r = 1; r < rowsContas.length; r++) {
-          const row = rowsContas[r];
-          for (let c = 0; c < analysts.length; c++) {
-            const analista = analysts[c];
-            const cliente = String(row[c] || '').trim();
-            if (analista && cliente) {
-              contasData.push({
-                cliente,
-                analista,
-                clienteNorm: normalizeText(cliente),
-                analistaNorm: normalizeText(analista)
-              });
-            }
-          }
-        }
+    // Retorna estilo visual consistente para cada analista
+    function getAnalystStyle(name) {
+      const key = normalizeText(name);
+      if (ANALYST_STYLES[key]) return ANALYST_STYLES[key];
+      let hash = 0;
+      for (let i = 0; i < key.length; i++) {
+        hash = key.charCodeAt(i) + ((hash << 5) - hash);
       }
+      return FALLBACK_PALETTE[Math.abs(hash) % FALLBACK_PALETTE.length];
+    }
 
-      // 2) Aba de Tenants
-      const sheetTenantsName = wb.SheetNames.find(n => normalizeText(n).includes('tenant')) || wb.SheetNames[1];
-      tenantsData = [];
-      if (sheetTenantsName) {
-        const sheetTenants = wb.Sheets[sheetTenantsName];
-        const rowsTenants = XLSX.utils.sheet_to_json(sheetTenants, { raw: false, defval: '' });
-        tenantsData = rowsTenants.map(row => {
-          const ambiente = String(row['Ambiente'] || '').trim();
-          const tenantId = String(row['TenantID'] || '').trim();
-          const nome = String(row['Nome Tenant'] || '').trim();
-          const cnpjRaw = String(row['CNPJ'] || '').trim();
-          return {
-            ambiente,
-            tenantId,
-            nome,
-            cnpjRaw,
-            cnpjDigits: onlyDigits(cnpjRaw),
-            nomeNorm: normalizeText(nome)
-          };
-        });
+    // Exibe toast discreto no canto inferior direito
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const msgEl = document.getElementById('toastMessage');
+      msgEl.textContent = message;
+      toast.classList.remove('opacity-0', 'translate-y-2');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2200);
+    }
+
+    // Copia texto para a área de transferência de forma compatível com iframes
+    function copyToClipboard(btn, text, label) {
+      try {
+        const tempInput = document.createElement('textarea');
+        tempInput.value = text;
+        tempInput.setAttribute('readonly', '');
+        tempInput.style.position = 'fixed';
+        tempInput.style.left = '-9999px';
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+
+        // Feedback visual no botão por 1,2s
+        const originalHTML = btn.dataset.originalHtml || btn.innerHTML;
+        btn.dataset.originalHtml = originalHTML;
+        btn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span>Copiado!</span>
+        `;
+        btn.classList.remove('text-slate-500', 'border-slate-200', 'bg-white', 'hover:bg-slate-50');
+        btn.classList.add('text-emerald-700', 'border-emerald-300', 'bg-emerald-50');
+
+        showToast(`${label} copiado: ${text}`);
+
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.classList.remove('text-emerald-700', 'border-emerald-300', 'bg-emerald-50');
+          btn.classList.add('text-slate-500', 'border-slate-200', 'bg-white', 'hover:bg-slate-50');
+        }, 1200);
+      } catch (err) {
+        showToast('Não foi possível copiar automaticamente.');
       }
+    }
 
-      document.getElementById('status').className = 'status';
-      document.getElementById('status').textContent =
-        `Base carregada (${sourceLabel}): ${contasData.length} contas e ${tenantsData.length} tenants.`;
+    /**
+     * =========================================================================
+     * CARREGAMENTO E NORMALIZAÇÃO DE DADOS
+     * =========================================================================
+     */
+
+    function setDataset(rawContas, rawTenants, sourceInfo) {
+      contasData = rawContas.map(item => ({
+        cliente: item.cliente,
+        analista: item.analista,
+        clienteNorm: normalizeText(item.cliente),
+        analistaNorm: normalizeText(item.analista),
+      }));
+
+      tenantsData = rawTenants.map(row => {
+        const ambiente = String(row['Ambiente'] || row['ambiente'] || '').trim();
+        const tenantId = String(row['TenantID'] || row['tenantId'] || row['TenantId'] || '').trim();
+        const nome = String(row['Nome Tenant'] || row['nome'] || '').trim();
+        const cnpjRaw = String(row['CNPJ'] || row['cnpj'] || '').trim();
+        return {
+          ambiente: ambiente || '—',
+          tenantId,
+          nome,
+          cnpjRaw,
+          cnpjDigits: onlyDigits(cnpjRaw),
+          nomeNorm: normalizeText(nome),
+          tenantIdNorm: normalizeText(tenantId),
+        };
+      });
+
+      selectedAnalyst = 'TODOS';
+
+      // Atualiza contadores do cabeçalho e das abas
+      document.getElementById('headerStats').textContent =
+        `${contasData.length} contas e ${tenantsData.length} tenants carregados`;
+      document.getElementById('tabCountContas').textContent = contasData.length;
+      document.getElementById('tabCountTenants').textContent = tenantsData.length;
+
+      // Atualiza banner de status
+      const banner = document.getElementById('statusBanner');
+      const bannerText = document.getElementById('statusBannerText');
+      const sourceBadge = document.getElementById('sourceBadge');
+
+      if (sourceInfo.isSample) {
+        banner.className = 'mb-5 rounded-xl border border-blue-200 bg-blue-50/80 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm text-blue-900';
+        bannerText.innerHTML = 'Exibindo <strong>amostra demonstrativa</strong>. Para consultar a base completa, clique em <strong>Carregar Fila WEB.xlsx</strong> no canto superior direito.';
+        sourceBadge.className = 'inline-flex items-center self-start sm:self-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white text-brand-700 border border-blue-200 shrink-0';
+        sourceBadge.textContent = 'Amostra';
+      } else {
+        banner.className = 'mb-5 rounded-xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm text-emerald-900';
+        bannerText.innerHTML = `Planilha <strong>${escapeHTML(sourceInfo.label)}</strong> carregada com sucesso! Todos os dados completos estão prontos para busca.`;
+        sourceBadge.className = 'inline-flex items-center self-start sm:self-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white text-emerald-700 border border-emerald-200 shrink-0';
+        sourceBadge.textContent = 'Base Completa';
+      }
 
       renderAnalystChips();
       renderContas();
       renderTenants();
     }
+
+    // Lê um ArrayBuffer de arquivo .xlsx usando SheetJS
+    function parseWorkbook(arrayBuffer, fileName) {
+      try {
+        const wb = XLSX.read(arrayBuffer, { type: 'array' });
+
+        // 1) Aba de Distribuição de Contas (ex: "DISTRIBUIÇÃO DE CONTAS WEB")
+        const sheetContasName =
+          wb.SheetNames.find(n => normalizeText(n).includes('distribuicao')) || wb.SheetNames[0];
+        const parsedContas = [];
+
+        if (sheetContasName) {
+          const sheetContas = wb.Sheets[sheetContasName];
+          const rows = XLSX.utils.sheet_to_json(sheetContas, { header: 1, defval: '' });
+
+          if (rows.length > 1) {
+            const analysts = rows[0].map(cell => String(cell || '').trim());
+            for (let r = 1; r < rows.length; r++) {
+              const row = rows[r];
+              for (let c = 0; c < analysts.length; c++) {
+                const analista = analysts[c];
+                const cliente = String(row[c] || '').trim();
+                if (analista && cliente) {
+                  parsedContas.push({ cliente, analista });
+                }
+              }
+            }
+          }
+        }
+
+        // 2) Aba de Buscador de Tenants (ex: "BUSCADOR DE TENANTS")
+        const sheetTenantsName =
+          wb.SheetNames.find(n => normalizeText(n).includes('tenant')) || wb.SheetNames[1];
+        let parsedTenants = [];
+
+        if (sheetTenantsName) {
+          const sheetTenants = wb.Sheets[sheetTenantsName];
+          parsedTenants = XLSX.utils.sheet_to_json(sheetTenants, { raw: false, defval: '' });
+        }
+
+        if (parsedContas.length === 0 && parsedTenants.length === 0) {
+          throw new Error('Nenhuma aba com dados reconhecidos foi encontrada.');
+        }
+
+        setDataset(parsedContas, parsedTenants, { isSample: false, label: fileName });
+        showToast(`Arquivo "${fileName}" carregado!`);
+      } catch (error) {
+        const banner = document.getElementById('statusBanner');
+        const bannerText = document.getElementById('statusBannerText');
+        const sourceBadge = document.getElementById('sourceBadge');
+
+        banner.className = 'mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm text-red-900';
+        bannerText.innerHTML = `<strong>Erro ao ler a planilha:</strong> verifique se o arquivo possui as abas "DISTRIBUIÇÃO DE CONTAS WEB" e "BUSCADOR DE TENANTS".`;
+        sourceBadge.className = 'inline-flex items-center self-start sm:self-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white text-red-700 border border-red-200 shrink-0';
+        sourceBadge.textContent = 'Erro';
+      }
+    }
+
+    /**
+     * =========================================================================
+     * RENDERIZAÇÃO DA ABA 1 — DISTRIBUIÇÃO DE CONTAS
+     * =========================================================================
+     */
 
     function renderAnalystChips() {
       const container = document.getElementById('analystChips');
@@ -383,13 +594,50 @@
       });
 
       const analysts = Object.keys(counts);
-      let html = `<button class="chip ${selectedAnalyst === 'TODOS' ? 'active' : ''}" data-analyst="TODOS">Todos (${contasData.length})</button>`;
-      analysts.forEach(a => {
-        html += `<button class="chip ${selectedAnalyst === a ? 'active' : ''}" data-analyst="${escapeHTML(a)}">${escapeHTML(a)} (${counts[a]})</button>`;
+      const isAllActive = selectedAnalyst === 'TODOS';
+
+      let html = `
+        <button
+          type="button"
+          data-analyst="TODOS"
+          class="analyst-chip inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium border transition ${
+            isAllActive
+              ? 'bg-brand-600 text-white border-brand-600 shadow-sm'
+              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+          }"
+        >
+          <span>Todos</span>
+          <span class="px-1.5 py-0.5 rounded-full text-[11px] font-semibold ${
+            isAllActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+          }">${contasData.length}</span>
+        </button>
+      `;
+
+      analysts.forEach(analyst => {
+        const active = selectedAnalyst === analyst;
+        const style = getAnalystStyle(analyst);
+        html += `
+          <button
+            type="button"
+            data-analyst="${escapeHTML(analyst)}"
+            class="analyst-chip inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium border transition ${
+              active
+                ? 'bg-brand-600 text-white border-brand-600 shadow-sm'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+            }"
+          >
+            <span class="w-2 h-2 rounded-full ${active ? 'bg-white' : style.dot}"></span>
+            <span>${escapeHTML(analyst)}</span>
+            <span class="px-1.5 py-0.5 rounded-full text-[11px] font-semibold ${
+              active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+            }">${counts[analyst]}</span>
+          </button>
+        `;
       });
 
       container.innerHTML = html;
-      container.querySelectorAll('.chip').forEach(btn => {
+
+      container.querySelectorAll('.analyst-chip').forEach(btn => {
         btn.addEventListener('click', () => {
           selectedAnalyst = btn.dataset.analyst;
           renderAnalystChips();
@@ -399,124 +647,245 @@
     }
 
     function renderContas() {
-      const term = normalizeText(document.getElementById('searchContas').value);
+      const input = document.getElementById('searchContas');
+      const clearBtn = document.getElementById('clearContas');
+      const rawValue = input.value;
+      clearBtn.classList.toggle('hidden', rawValue.length === 0);
+
+      const term = normalizeText(rawValue);
+
       const filtered = contasData.filter(item => {
         const matchAnalyst = selectedAnalyst === 'TODOS' || item.analista === selectedAnalyst;
         const matchTerm = !term || item.clienteNorm.includes(term) || item.analistaNorm.includes(term);
         return matchAnalyst && matchTerm;
       });
 
-      document.getElementById('metaContas').textContent = `${filtered.length} resultado(s) encontrado(s)`;
+      // Atualiza contador
+      document.getElementById('metaContas').textContent =
+        filtered.length === 1
+          ? '1 conta encontrada'
+          : `${filtered.length} contas encontradas`;
 
       const tbody = document.getElementById('tbodyContas');
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="2" class="empty">Nenhuma conta ou analista encontrado.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = filtered.map(item => `
-        <tr>
-          <td><strong>${escapeHTML(item.cliente)}</strong></td>
-          <td><span class="badge">${escapeHTML(item.analista)}</span></td>
-        </tr>
-      `).join('');
-    }
-
-    function renderTenants() {
-      const rawQuery = document.getElementById('searchTenants').value;
-      const term = normalizeText(rawQuery);
-      const termDigits = onlyDigits(rawQuery);
-
-      const filtered = tenantsData.filter(item => {
-        if (!term) return true;
-        const matchName = item.nomeNorm.includes(term);
-        const matchId = item.tenantId.toLowerCase().includes(term);
-        const matchCnpj = termDigits.length > 0 && item.cnpjDigits.includes(termDigits);
-        return matchName || matchId || matchCnpj;
-      });
-
-      const showing = filtered.slice(0, MAX_TENANT_ROWS);
-      document.getElementById('metaTenants').textContent =
-        filtered.length > MAX_TENANT_ROWS
-          ? `Mostrando ${MAX_TENANT_ROWS} de ${filtered.length} resultados (digite mais caracteres para refinar)`
-          : `${filtered.length} resultado(s) encontrado(s)`;
-
-      const tbody = document.getElementById('tbodyTenants');
-      if (showing.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="empty">Nenhum tenant encontrado.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = showing.map(item => {
-        const cnpjFmt = formatCNPJ(item.cnpjRaw);
-        const copyCnpjBtn = item.cnpjDigits
-          ? `<button class="copy-btn" onclick="copyText(this, '${escapeHTML(item.cnpjDigits)}')">Copiar</button>`
-          : '';
-        return `
+        tbody.innerHTML = `
           <tr>
-            <td>${escapeHTML(item.ambiente)}</td>
-            <td>
-              <strong>${escapeHTML(item.tenantId)}</strong>
-              <button class="copy-btn" onclick="copyText(this, '${escapeHTML(item.tenantId)}')">Copiar</button>
+            <td colspan="2" class="py-12 px-4 text-center">
+              <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 text-slate-400 mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <p class="text-slate-700 font-medium">Nenhuma conta ou analista encontrado</p>
+              <p class="text-slate-400 text-xs mt-1">Tente digitar apenas as primeiras letras ou selecione "Todos" nos filtros acima.</p>
             </td>
-            <td>${escapeHTML(item.nome)}</td>
-            <td>${escapeHTML(cnpjFmt)} ${copyCnpjBtn}</td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => {
+        const style = getAnalystStyle(item.analista);
+        return `
+          <tr class="hover:bg-slate-50/90 transition-colors">
+            <td class="py-3.5 px-4 sm:px-5 font-medium text-slate-900">${escapeHTML(item.cliente)}</td>
+            <td class="py-3.5 px-4 sm:px-5">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${style.badge}">
+                <span class="w-1.5 h-1.5 rounded-full ${style.dot}"></span>
+                ${escapeHTML(item.analista)}
+              </span>
+            </td>
           </tr>
         `;
       }).join('');
     }
 
-    function copyText(btn, text) {
-      navigator.clipboard.writeText(text).then(() => {
-        const original = btn.textContent;
-        btn.textContent = 'Copiado!';
-        btn.classList.add('copied');
-        setTimeout(() => {
-          btn.textContent = original;
-          btn.classList.remove('copied');
-        }, 1200);
+    /**
+     * =========================================================================
+     * RENDERIZAÇÃO DA ABA 2 — BUSCADOR DE TENANTS (RESHOP)
+     * =========================================================================
+     */
+
+    function renderTenants() {
+      const input = document.getElementById('searchTenants');
+      const clearBtn = document.getElementById('clearTenants');
+      const rawValue = input.value;
+      clearBtn.classList.toggle('hidden', rawValue.length === 0);
+
+      const term = normalizeText(rawValue);
+      const termDigits = onlyDigits(rawValue);
+
+      const filtered = tenantsData.filter(item => {
+        if (!term) return true;
+        const matchName = item.nomeNorm.includes(term);
+        const matchId = item.tenantIdNorm.includes(term);
+        const matchCnpj = termDigits.length > 0 && item.cnpjDigits.includes(termDigits);
+        return matchName || matchId || matchCnpj;
       });
+
+      const showing = filtered.slice(0, MAX_TENANT_ROWS);
+      const metaEl = document.getElementById('metaTenants');
+
+      if (filtered.length > MAX_TENANT_ROWS) {
+        metaEl.innerHTML = `Mostrando <strong>${MAX_TENANT_ROWS}</strong> de <strong>${filtered.length}</strong> tenants encontrados <span class="text-amber-600">(digite mais caracteres para refinar a busca)</span>`;
+      } else {
+        metaEl.textContent =
+          filtered.length === 1
+            ? '1 tenant encontrado'
+            : `${filtered.length} tenants encontrados`;
+      }
+
+      const tbody = document.getElementById('tbodyTenants');
+      if (showing.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="py-12 px-4 text-center">
+              <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 text-slate-400 mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <p class="text-slate-700 font-medium">Nenhum tenant encontrado</p>
+              <p class="text-slate-400 text-xs mt-1">Verifique as iniciais do nome, o TenantID ou os números do CNPJ.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const copyIconSVG = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      `;
+
+      tbody.innerHTML = showing.map(item => {
+        const cnpjFormatted = formatCNPJ(item.cnpjRaw);
+        const hasValidCnpj = item.cnpjDigits.length > 0;
+
+        return `
+          <tr class="hover:bg-slate-50/90 transition-colors">
+            <td class="py-3.5 px-4 sm:px-5">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
+                ${escapeHTML(item.ambiente)}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 sm:px-5 whitespace-nowrap">
+              <div class="inline-flex items-center gap-2">
+                <span class="font-mono font-semibold text-slate-900 bg-slate-100/80 px-2 py-0.5 rounded-md">${escapeHTML(item.tenantId)}</span>
+                ${
+                  item.tenantId
+                    ? `<button
+                        type="button"
+                        onclick="copyToClipboard(this, '${escapeHTML(item.tenantId)}', 'TenantID')"
+                        class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition"
+                        title="Copiar TenantID"
+                      >${copyIconSVG}<span>Copiar</span></button>`
+                    : ''
+                }
+              </div>
+            </td>
+            <td class="py-3.5 px-4 sm:px-5 font-medium text-slate-900">${escapeHTML(item.nome)}</td>
+            <td class="py-3.5 px-4 sm:px-5 whitespace-nowrap">
+              <div class="inline-flex items-center gap-2">
+                <span class="font-mono text-xs sm:text-sm ${hasValidCnpj ? 'text-slate-700' : 'text-slate-400'}">${escapeHTML(cnpjFormatted)}</span>
+                ${
+                  hasValidCnpj
+                    ? `<button
+                        type="button"
+                        onclick="copyToClipboard(this, '${escapeHTML(item.cnpjDigits)}', 'CNPJ')"
+                        class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition"
+                        title="Copiar CNPJ (apenas números)"
+                      >${copyIconSVG}<span>Copiar</span></button>`
+                    : ''
+                }
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
-    // Troca de abas
+    /**
+     * =========================================================================
+     * EVENTOS DE INTERAÇÃO E INICIALIZAÇÃO
+     * =========================================================================
+     */
+
+    // Alternância entre abas
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+        const target = btn.dataset.tab;
+
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          const isActive = b.dataset.tab === target;
+          b.classList.toggle('border-brand-600', isActive);
+          b.classList.toggle('text-brand-600', isActive);
+          b.classList.toggle('border-transparent', !isActive);
+          b.classList.toggle('text-slate-500', !isActive);
+
+          const countBadge = b.querySelector('span[id^="tabCount"]');
+          if (countBadge) {
+            countBadge.classList.toggle('bg-brand-100', isActive);
+            countBadge.classList.toggle('text-brand-700', isActive);
+            countBadge.classList.toggle('bg-slate-200', !isActive);
+            countBadge.classList.toggle('text-slate-600', !isActive);
+          }
+        });
+
+        document.getElementById('panel-contas').classList.toggle('hidden', target !== 'contas');
+        document.getElementById('panel-tenants').classList.toggle('hidden', target !== 'tenants');
       });
     });
 
-    // Busca em tempo real
+    // Busca em tempo real e botões de limpar
     document.getElementById('searchContas').addEventListener('input', renderContas);
     document.getElementById('searchTenants').addEventListener('input', renderTenants);
 
-    // Upload manual (fallback para uso local ou testes)
-    document.getElementById('fileInput').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => parseWorkbook(ev.target.result, file.name);
-      reader.readAsArrayBuffer(file);
+    document.getElementById('clearContas').addEventListener('click', () => {
+      const el = document.getElementById('searchContas');
+      el.value = '';
+      el.focus();
+      renderContas();
     });
 
-    // Carregamento automático do arquivo no GitHub Pages
-    async function loadDefaultExcel() {
+    document.getElementById('clearTenants').addEventListener('click', () => {
+      const el = document.getElementById('searchTenants');
+      el.value = '';
+      el.focus();
+      renderTenants();
+    });
+
+    // Upload manual da planilha Fila WEB.xlsx
+    document.getElementById('fileInput').addEventListener('change', event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => parseWorkbook(e.target.result, file.name);
+      reader.readAsArrayBuffer(file);
+      // Permite recarregar o mesmo arquivo se for atualizado
+      event.target.value = '';
+    });
+
+    // Inicialização: carrega amostra imediatamente e tenta buscar Fila WEB.xlsx se estiver no GitHub Pages
+    async function initApp() {
+      setDataset(SAMPLE_CONTAS, SAMPLE_TENANTS, { isSample: true, label: 'Amostra' });
+
       try {
-        const response = await fetch(encodeURI(EXCEL_FILE) + '?v=' + Date.now());
-        if (!response.ok) throw new Error('Arquivo não encontrado');
-        const buffer = await response.arrayBuffer();
-        parseWorkbook(buffer, 'Fila WEB.xlsx');
-      } catch (err) {
-        const statusEl = document.getElementById('status');
-        statusEl.className = 'status error';
-        statusEl.textContent =
-          'Não foi possível carregar "Fila WEB.xlsx" automaticamente. Se estiver testando no PC, clique em "Carregar outra planilha (.xlsx)" acima.';
+        const res = await fetch(encodeURI(EXCEL_DEFAULT_PATH) + '?v=' + Date.now());
+        if (res.ok) {
+          const contentType = res.headers.get('content-type') || '';
+          if (!contentType.includes('text/html')) {
+            const buffer = await res.arrayBuffer();
+            parseWorkbook(buffer, 'Fila WEB.xlsx');
+          }
+        }
+      } catch (_) {
+        // Em preview ou uso local sem servidor, mantém a amostra demonstrativa silenciosamente
       }
     }
 
-    loadDefaultExcel();
+    initApp();
   </script>
 </body>
 </html>
