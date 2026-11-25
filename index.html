@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Central de Buscas N1 Compartilhado — Contas & Tenants Reshop</title>
+  <title>Divisão Filas Web Compartilhado</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Fonte Inter -->
@@ -37,7 +37,7 @@
 
   <!-- Cabeçalho limpo: apenas título e subtítulo -->
   <header class="bg-white border-b border-[#e2e8f0] sticky top-0 z-20 shadow-sm">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0 shadow-sm">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
@@ -45,9 +45,9 @@
           </svg>
         </div>
         <div>
-          <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">Central de Buscas</h1>
+          <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">Divisão Filas Web Compartilhado</h1>
           <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Consulta rápida de distribuição de contas e Tenants Reshop
+            Consulta rápida de distribuição de contas
           </p>
         </div>
       </div>
@@ -55,33 +55,10 @@
   </header>
 
   <!-- Conteúdo Principal -->
-  <main class="max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1">
+  <main class="max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1">
     <div class="bg-white rounded-2xl border border-[#e2e8f0] shadow-sm overflow-hidden">
 
-      <!-- Navegação entre Abas -->
-      <nav class="flex border-b border-[#e2e8f0] bg-slate-50/70 px-2 sm:px-4 pt-2 gap-1 sm:gap-2 overflow-x-auto" aria-label="Abas de consulta">
-        <button
-          id="tab-btn-contas"
-          type="button"
-          data-tab="contas"
-          class="tab-btn active flex items-center gap-2 px-4 py-3 text-sm font-semibold rounded-t-xl border-b-2 border-brand-600 text-brand-600 bg-white transition-all whitespace-nowrap"
-        >
-          <span>Distribuição de Contas</span>
-          <span id="tabCountContas" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700">0</span>
-        </button>
-
-        <button
-          id="tab-btn-tenants"
-          type="button"
-          data-tab="tenants"
-          class="tab-btn flex items-center gap-2 px-4 py-3 text-sm font-semibold rounded-t-xl border-b-2 border-transparent text-slate-500 hover:text-slate-800 hover:bg-white/60 transition-all whitespace-nowrap"
-        >
-          <span>Buscador de Tenants (Reshop)</span>
-          <span id="tabCountTenants" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-700">0</span>
-        </button>
-      </nav>
-
-      <!-- PAINEL 1: DISTRIBUIÇÃO DE CONTAS -->
+      <!-- Seção de Distribuição de Contas -->
       <section id="panel-contas" class="p-4 sm:p-6">
         <!-- Campo de Busca -->
         <div class="relative mb-4">
@@ -95,7 +72,7 @@
             id="searchContas"
             placeholder="Digite as iniciais ou parte do nome da conta ou do analista (ex: Gru, Vit, Soma, TNG)..."
             autocomplete="off"
-            class="w-full pl-11 pr-11 py-3.5 text-sm sm:text-base bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-500/15 transition-all"
+            class="w-full pl-11 pr-20 py-3.5 text-sm sm:text-base bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-500/15 transition-all"
           />
           <button
             id="clearContas"
@@ -132,73 +109,14 @@
         </div>
       </section>
 
-      <!-- PAINEL 2: BUSCADOR DE TENANTS (RESHOP) -->
-      <section id="panel-tenants" class="hidden p-4 sm:p-6">
-        <!-- Campo de Busca -->
-        <div class="relative mb-4">
-          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-          <input
-            type="text"
-            id="searchTenants"
-            placeholder="Digite as iniciais do Nome Tenant, TenantID ou CNPJ (com ou sem pontuação)..."
-            autocomplete="off"
-            class="w-full pl-11 pr-11 py-3.5 text-sm sm:text-base bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-500/15 transition-all"
-          />
-          <button
-            id="clearTenants"
-            type="button"
-            title="Limpar busca"
-            class="hidden absolute inset-y-0 right-2 my-auto h-8 px-2.5 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
-          >
-            Limpar
-          </button>
-        </div>
-
-        <!-- Contador de resultados -->
-        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-500 mb-3">
-          <span id="metaTenants">0 resultado(s) encontrado(s)</span>
-        </div>
-
-        <!-- Tabela de Tenants -->
-        <div class="overflow-x-auto rounded-xl border border-[#e2e8f0]">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 border-b border-[#e2e8f0] text-xs font-semibold uppercase tracking-wider text-slate-500">
-                <th class="py-3.5 px-4">Ambiente</th>
-                <th class="py-3.5 px-4">TenantID</th>
-                <th class="py-3.5 px-4">Nome Tenant</th>
-                <th class="py-3.5 px-4">CNPJ</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyTenants" class="divide-y divide-[#e2e8f0] text-sm"></tbody>
-          </table>
-        </div>
-      </section>
-
     </div>
   </main>
-
-  <!-- Toast discreto de confirmação de cópia -->
-  <div
-    id="copyToast"
-    class="fixed bottom-5 right-5 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-200 bg-slate-900 text-white text-xs sm:text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-    </svg>
-    <span id="copyToastText">Copiado!</span>
-  </div>
 
   <script>
     // Caminho relativo da planilha no repositório GitHub Pages
     const EXCEL_DEFAULT_PATH = './Fila WEB.xlsx';
-    const MAX_TENANT_ROWS = 120;
 
-    // Dados reais embutidos como fallback silencioso
+    // Dados reais embutidos como fallback silencioso para pré-visualização
     const CONTAS = [
       {"cliente": "Adriana Degreas", "analista": "Matheus"},
       {"cliente": "Ateen Moda Feminina", "analista": "Matheus"},
@@ -242,33 +160,6 @@
       {"cliente": "LAFORT", "analista": "Vitor"}
     ];
 
-    const TENANTS = [
-      {"Ambiente": "Moda", "TenantID": "1", "Nome Tenant": "Linx Reshop", "CNPJ": "54517628003022"},
-      {"Ambiente": "Moda", "TenantID": "6", "Nome Tenant": "Consumidor", "CNPJ": "-"},
-      {"Ambiente": "Moda", "TenantID": "8", "Nome Tenant": "TNG", "CNPJ": "53966834003308"},
-      {"Ambiente": "Moda", "TenantID": "10", "Nome Tenant": "Reshop Test", "CNPJ": "15573499000101"},
-      {"Ambiente": "Moda", "TenantID": "16", "Nome Tenant": "Shoulder", "CNPJ": "43470566000190"},
-      {"Ambiente": "Moda", "TenantID": "17", "Nome Tenant": "Reserva", "CNPJ": "07308705000110"},
-      {"Ambiente": "Moda", "TenantID": "21", "Nome Tenant": "Buckman", "CNPJ": "22347998000138"},
-      {"Ambiente": "Moda", "TenantID": "25", "Nome Tenant": "TVZ", "CNPJ": "04665096000168"},
-      {"Ambiente": "Moda", "TenantID": "27", "Nome Tenant": "Track&Field", "CNPJ": "13772537000111"},
-      {"Ambiente": "Moda", "TenantID": "36", "Nome Tenant": "Loungerie", "CNPJ": "13513325001000"},
-      {"Ambiente": "Moda", "TenantID": "51", "Nome Tenant": "Cotton On", "CNPJ": "15425654000134"},
-      {"Ambiente": "Moda", "TenantID": "85", "Nome Tenant": "Lacoste", "CNPJ": "62438197000100"},
-      {"Ambiente": "Moda", "TenantID": "94", "Nome Tenant": "Grupo Soma", "CNPJ": "10285590000108"},
-      {"Ambiente": "Moda", "TenantID": "95", "Nome Tenant": "Osklen", "CNPJ": "35943604000156"},
-      {"Ambiente": "Moda", "TenantID": "97", "Nome Tenant": "Scarfme", "CNPJ": "97519914000103"},
-      {"Ambiente": "Moda", "TenantID": "185", "Nome Tenant": "Admin Grupo Soma", "CNPJ": "10285590000108"},
-      {"Ambiente": "Moda", "TenantID": "195", "Nome Tenant": "Grupo Calzedonia", "CNPJ": "13566271000150"},
-      {"Ambiente": "Moda", "TenantID": "196", "Nome Tenant": "Calzedonia (Proprias)", "CNPJ": "-"},
-      {"Ambiente": "Moda", "TenantID": "197", "Nome Tenant": "Calzedonia (Franquias)", "CNPJ": "-"},
-      {"Ambiente": "Moda", "TenantID": "464", "Nome Tenant": "Grupo - Aramis", "CNPJ": "14007062000130"},
-      {"Ambiente": "Moda", "TenantID": "465", "Nome Tenant": "Aramis (Próprias)", "CNPJ": "-"},
-      {"Ambiente": "Moda", "TenantID": "466", "Nome Tenant": "Aramis (Franquias)", "CNPJ": "-"},
-      {"Ambiente": "Moda", "TenantID": "626", "Nome Tenant": "Cavalera (Company)", "CNPJ": "00819123000156"},
-      {"Ambiente": "Moda", "TenantID": "627", "Nome Tenant": "Cavalera (Brand)", "CNPJ": "00819123000157"}
-    ];
-
     // Paleta de badges distintos por analista
     const ANALYST_BADGE_STYLES = {
       matheus: 'bg-blue-50 text-blue-700 border border-blue-200',
@@ -286,9 +177,7 @@
     ];
 
     let contasData = [];
-    let tenantsData = [];
     let selectedAnalyst = 'TODOS';
-    let toastTimer = null;
 
     // Normaliza texto removendo acentos e convertendo para minúsculas
     function normalizeText(value) {
@@ -297,20 +186,6 @@
         .replace(/[\u0300-\u036f]/g, '')
         .toLowerCase()
         .trim();
-    }
-
-    // Extrai apenas dígitos numéricos (para comparação de CNPJ)
-    function onlyDigits(value) {
-      return String(value || '').replace(/\D/g, '');
-    }
-
-    // Formata CNPJ de 14 dígitos no padrão 00.000.000/0000-00
-    function formatCNPJ(raw) {
-      const digits = onlyDigits(raw);
-      if (digits.length === 14) {
-        return digits.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
-      }
-      return raw && raw !== '-' ? raw : '—';
     }
 
     // Escapa caracteres especiais para evitar quebra de HTML
@@ -329,44 +204,8 @@
       return ANALYST_BADGE_STYLES[key] || FALLBACK_BADGES[index % FALLBACK_BADGES.length];
     }
 
-    // Copia texto para a área de transferência de forma compatível com iframes e navegadores modernos
-    function copyToClipboard(text, label) {
-      try {
-        const tempInput = document.createElement('textarea');
-        tempInput.value = text;
-        tempInput.setAttribute('readonly', '');
-        tempInput.style.position = 'fixed';
-        tempInput.style.opacity = '0';
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-        showToast(`${label} copiado: ${text}`);
-      } catch (_) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(() => {
-            showToast(`${label} copiado: ${text}`);
-          });
-        }
-      }
-    }
-
-    function showToast(message) {
-      const toast = document.getElementById('copyToast');
-      const toastText = document.getElementById('copyToastText');
-      toastText.textContent = message;
-      toast.classList.remove('opacity-0', 'translate-y-2');
-      toast.classList.add('opacity-100', 'translate-y-0');
-
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        toast.classList.remove('opacity-100', 'translate-y-0');
-        toast.classList.add('opacity-0', 'translate-y-2');
-      }, 1800);
-    }
-
-    // Prepara os dados em memória e atualiza toda a interface
-    function setDataset(rawContas, rawTenants) {
+    // Prepara os dados em memória e atualiza a interface
+    function setDataset(rawContas) {
       contasData = rawContas.map(item => ({
         cliente: String(item.cliente || '').trim(),
         analista: String(item.analista || '').trim(),
@@ -374,38 +213,17 @@
         analistaNorm: normalizeText(item.analista),
       }));
 
-      tenantsData = rawTenants.map(row => {
-        const ambiente = String(row['Ambiente'] || row['ambiente'] || '').trim();
-        const tenantId = String(row['TenantID'] || row['tenantId'] || row['TenantId'] || '').trim();
-        const nome = String(row['Nome Tenant'] || row['nome'] || '').trim();
-        const cnpjRaw = String(row['CNPJ'] || row['cnpj'] || '').trim();
-        return {
-          ambiente: ambiente || '—',
-          tenantId,
-          nome,
-          cnpjRaw,
-          cnpjDigits: onlyDigits(cnpjRaw),
-          nomeNorm: normalizeText(nome),
-          tenantIdNorm: normalizeText(tenantId),
-        };
-      });
-
       selectedAnalyst = 'TODOS';
-      document.getElementById('tabCountContas').textContent = contasData.length;
-      document.getElementById('tabCountTenants').textContent = tenantsData.length;
-
       renderAnalystChips();
       renderContas();
-      renderTenants();
     }
 
-    // Lê a planilha Excel via SheetJS quando disponível
+    // Lê a aba 'DISTRIBUIÇÃO DE CONTAS WEB' da planilha Excel via SheetJS
     function parseWorkbook(arrayBuffer) {
       try {
         if (typeof XLSX === 'undefined') return;
         const wb = XLSX.read(arrayBuffer, { type: 'array' });
 
-        // 1) Aba de Distribuição de Contas (colunas com nome de cada analista)
         const sheetContasName =
           wb.SheetNames.find(n => normalizeText(n).includes('distribuicao')) || wb.SheetNames[0];
         const parsedContas = [];
@@ -429,18 +247,8 @@
           }
         }
 
-        // 2) Aba de Buscador de Tenants
-        const sheetTenantsName =
-          wb.SheetNames.find(n => normalizeText(n).includes('tenant')) || wb.SheetNames[1];
-        let parsedTenants = [];
-
-        if (sheetTenantsName) {
-          const sheetTenants = wb.Sheets[sheetTenantsName];
-          parsedTenants = XLSX.utils.sheet_to_json(sheetTenants, { raw: false, defval: '' });
-        }
-
-        if (parsedContas.length > 0 || parsedTenants.length > 0) {
-          setDataset(parsedContas, parsedTenants);
+        if (parsedContas.length > 0) {
+          setDataset(parsedContas);
         }
       } catch (_) {
         // Fallback silencioso mantido
@@ -473,7 +281,7 @@
           }"
         >
           <span>Todos</span>
-          <span class="px-1.5 py-0.2 rounded-full text-[11px] font-semibold ${
+          <span class="px-1.5 py-0.5 rounded-full text-[11px] font-semibold ${
             isAll ? 'bg-white/20 text-white' : 'bg-white text-slate-600'
           }">${contasData.length}</span>
         </button>
@@ -496,7 +304,7 @@
           >
             <span class="w-2 h-2 rounded-full ${active ? 'bg-white' : dotColor}"></span>
             <span>${escapeHTML(analyst)}</span>
-            <span class="px-1.5 py-0.2 rounded-full text-[11px] font-semibold ${
+            <span class="px-1.5 py-0.5 rounded-full text-[11px] font-semibold ${
               active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
             }">${counts[analyst]}</span>
           </button>
@@ -513,7 +321,7 @@
       });
     }
 
-    // Filtra e renderiza a tabela da Aba 1 (Distribuição de Contas)
+    // Filtra e renderiza a tabela de Distribuição de Contas
     function renderContas() {
       const inputEl = document.getElementById('searchContas');
       const clearBtn = document.getElementById('clearContas');
@@ -559,125 +367,6 @@
         .join('');
     }
 
-    // Filtra e renderiza a tabela da Aba 2 (Buscador de Tenants)
-    function renderTenants() {
-      const inputEl = document.getElementById('searchTenants');
-      const clearBtn = document.getElementById('clearTenants');
-      const rawQuery = inputEl.value;
-      const term = normalizeText(rawQuery);
-      const termDigits = onlyDigits(rawQuery);
-
-      clearBtn.classList.toggle('hidden', rawQuery.length === 0);
-
-      const filtered = tenantsData.filter(item => {
-        if (!term && !termDigits) return true;
-        const matchNome = term.length > 0 && item.nomeNorm.includes(term);
-        const matchId = term.length > 0 && item.tenantIdNorm.includes(term);
-        const matchCnpj = termDigits.length > 0 && item.cnpjDigits.includes(termDigits);
-        return matchNome || matchId || matchCnpj;
-      });
-
-      const visible = filtered.slice(0, MAX_TENANT_ROWS);
-      document.getElementById('metaTenants').textContent =
-        filtered.length > MAX_TENANT_ROWS
-          ? `Exibindo ${MAX_TENANT_ROWS} de ${filtered.length} resultado(s) encontrado(s)`
-          : `${filtered.length} resultado(s) encontrado(s)`;
-
-      const tbody = document.getElementById('tbodyTenants');
-      if (visible.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="4" class="py-10 px-4 text-center text-slate-400">
-              Nenhum Tenant encontrado para o nome, TenantID ou CNPJ informado.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      tbody.innerHTML = visible
-        .map(item => {
-          const cnpjFormatted = formatCNPJ(item.cnpjRaw);
-          const hasValidCnpj = item.cnpjDigits.length > 0;
-
-          return `
-            <tr class="hover:bg-slate-50/90 transition-colors">
-              <td class="py-3.5 px-4 whitespace-nowrap">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                  ${escapeHTML(item.ambiente)}
-                </span>
-              </td>
-              <td class="py-3.5 px-4 whitespace-nowrap">
-                <div class="inline-flex items-center gap-2">
-                  <span class="font-semibold text-slate-900 font-mono">${escapeHTML(item.tenantId)}</span>
-                  <button
-                    type="button"
-                    data-copy="${escapeHTML(item.tenantId)}"
-                    data-label="TenantID"
-                    class="copy-action px-2 py-1 text-xs font-medium rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-brand-600 hover:border-brand-300 hover:bg-brand-50/50 transition-colors"
-                  >
-                    Copiar
-                  </button>
-                </div>
-              </td>
-              <td class="py-3.5 px-4 font-medium text-slate-900">${escapeHTML(item.nome)}</td>
-              <td class="py-3.5 px-4 whitespace-nowrap">
-                ${
-                  hasValidCnpj
-                    ? `<div class="inline-flex items-center gap-2">
-                        <span class="font-mono text-slate-700">${escapeHTML(cnpjFormatted)}</span>
-                        <button
-                          type="button"
-                          data-copy="${escapeHTML(item.cnpjDigits)}"
-                          data-label="CNPJ"
-                          class="copy-action px-2 py-1 text-xs font-medium rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-brand-600 hover:border-brand-300 hover:bg-brand-50/50 transition-colors"
-                        >
-                          Copiar
-                        </button>
-                      </div>`
-                    : `<span class="text-slate-400">—</span>`
-                }
-              </td>
-            </tr>
-          `;
-        })
-        .join('');
-    }
-
-    // Alternância de abas
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const target = btn.dataset.tab;
-
-        document.querySelectorAll('.tab-btn').forEach(b => {
-          const isCurrent = b.dataset.tab === target;
-          b.classList.toggle('active', isCurrent);
-          b.classList.toggle('border-brand-600', isCurrent);
-          b.classList.toggle('text-brand-600', isCurrent);
-          b.classList.toggle('bg-white', isCurrent);
-          b.classList.toggle('border-transparent', !isCurrent);
-          b.classList.toggle('text-slate-500', !isCurrent);
-
-          const badge = b.querySelector('span:last-child');
-          if (badge) {
-            badge.className = isCurrent
-              ? 'text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700'
-              : 'text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-700';
-          }
-        });
-
-        document.getElementById('panel-contas').classList.toggle('hidden', target !== 'contas');
-        document.getElementById('panel-tenants').classList.toggle('hidden', target !== 'tenants');
-      });
-    });
-
-    // Delegação de clique para botões de copiar na tabela de Tenants
-    document.getElementById('tbodyTenants').addEventListener('click', e => {
-      const btn = e.target.closest('.copy-action');
-      if (!btn) return;
-      copyToClipboard(btn.dataset.copy, btn.dataset.label);
-    });
-
     // Eventos de busca em tempo real e limpeza
     document.getElementById('searchContas').addEventListener('input', renderContas);
     document.getElementById('clearContas').addEventListener('click', () => {
@@ -687,17 +376,9 @@
       renderContas();
     });
 
-    document.getElementById('searchTenants').addEventListener('input', renderTenants);
-    document.getElementById('clearTenants').addEventListener('click', () => {
-      const el = document.getElementById('searchTenants');
-      el.value = '';
-      el.focus();
-      renderTenants();
-    });
-
     // Inicializa com os dados embutidos e tenta carregar ./Fila WEB.xlsx automaticamente no GitHub Pages
     async function initApp() {
-      setDataset(CONTAS, TENANTS);
+      setDataset(CONTAS);
 
       try {
         const res = await fetch(encodeURI(EXCEL_DEFAULT_PATH) + '?v=' + Date.now());
